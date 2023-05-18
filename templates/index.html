@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1 class="title">{% block title %} Material Categories {% endblock %}</h1>
+    <div class="content">
+        {% for category in categories_list %}
+            <div class="category">
+                <p><b>#{{ category.category_id }}</b></p>
+                <b>
+                    <p class="name">{{ category.category_name|capitalize }}</p>
+                </b>
+                <div class="image">
+                    <a href="{{ url_for('product_details', category_id=category.category_id)}}">
+                    <img src={{ url_for('static', filename=category.category_name+".jpg") }} class="center" width="200" height="200">
+                </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

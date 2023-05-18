@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1 class="title">{% block title %} Material Types {% endblock %}</h1>
+<div class="content">
+        {% for product in products_in_category %}
+            <div class="category">
+                <p><b>#{{ product.product_id }}</b></p>
+                <b>
+                    <p class="name">{{ product.product_name|replace("_", " ")|capitalize }}</p>
+                    {{ "Number of stocks = " ~ product.product_stock }}
+                </b>
+                <br>
+
+            <button type="button" class="btn btn-success btn-lg" style="margin-top: 20px; margin-right: 80px">Increase</button>
+            <button type="button" class="btn btn-danger btn-lg" style="margin-top: 20px; margin-right: 80px">Decrease</button>
+
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
