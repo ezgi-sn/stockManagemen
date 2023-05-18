@@ -1,3 +1,24 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.arttir-btn').click(function () {
+                var alt_kategori_id = $(this).data('alt-kategori-id');
+                $.ajax({
+                    url: '/increase/' + alt_kategori_id,
+                    type: 'POST',
+                    success: function (response) {
+                        if (response.success) {
+                            $('#deger-' + alt_kategori_id).text(response.yeni_deger);
+
+                        }
+                    },
+                    error: function () {
+                        console.log('error occured');
+                    }
+                });
+            });
+        });
+             </script>
 {% extends 'base.html' %}
 {% block content %}
 
@@ -8,14 +29,17 @@
                 <p><b>#{{ product.product_id }}</b></p>
                 <b>
                     <p class="name">{{ product.product_name|replace("_", " ")|capitalize }}</p>
-                    {{ "Number of stocks = " ~ product.product_stock }}
+                    <span id="deger-{{ product.product_stock }}">{{ "Number of stocks = " ~ product.product_stock }}</span>
                 </b>
                 <br>
-
-            <button type="button" class="btn btn-success btn-lg" style="margin-top: 20px; margin-right: 80px">Increase</button>
-            <button type="button" class="btn btn-danger btn-lg" style="margin-top: 20px; margin-right: 80px">Decrease</button>
+                <form action="{{ url_for('increase',product_id=product.product_id) }}">
+            <button type="button" class="btn btn-success btn-lg arttir-btn" style="margin-top: 20px; margin-right: 80px"  data-alt-kategori-id="{{ product.product_id }}">
+                Increase</button>
+</form>
+            <button name="decrease" type="button" class="btn btn-danger btn-lg" style="margin-top: 20px; margin-right: 80px">Decrease</button>
 
             </div>
+
         {% endfor %}
     </div>
 {% endblock %}

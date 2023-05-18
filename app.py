@@ -83,16 +83,23 @@ def product():
     return render_template('products.html', products_list=products_list)
 
 @app.route('/product_details/<int:category_id>')
-
 def product_details(category_id:int):
     products_in_category = Product.query.filter_by(category_id=category_id)
     return render_template('categories.html', products_in_category=products_in_category)
 
-#def increase(product_id:int):
-#    product=Product.query.filter_by(product_id=product_id)
-#    product.product_stock=product.product_stock+1
 
-@app.route('/increase/')
+
+@app.route('/increase/<int:product_id>', methods=['POST'])
+def increase(product_id):
+    print('increase triggered')
+    product = Product.query.filter_by(product_id=product_id).first()
+    if product:
+        product.product_stock=product.product_stock+1
+        db.session.commit()
+        print(product.product_stock)
+        return jsonify({'success': True, 'yeni_deger': product.product_stock})
+    return jsonify({'success': False})
+
 
 #database models
 class User(db.Model):
