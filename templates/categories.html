@@ -40,9 +40,15 @@
 
 <h1 class="title">{% block title %} Material Types {% endblock %}</h1>
 <div class="content">
+    <form action="" method="post" name="categories">
         {% for product in products_in_category %}
             <div class="category">
-                <p><b>#{{ product.product_id }}</b></p>
+            <label class="checkbox">
+              <input type="checkbox" name="product_keys" value="{{ product.product_id }}"/>
+            </label>
+                <a href="{{ url_for('product_details', category_id=product.category_id) }}"></a>
+                <b>#{{ product.product_id }}</b>
+
                 <b>
                     <p class="name">{{ product.product_name|replace("_", " ")|capitalize }}</p>
                     <p class="notbold">{{ product.product_description }}</p>
@@ -62,7 +68,11 @@
 </div>
                     </div>
             </div>
-
         {% endfor %}
+        <br>
+    <div class="col text-center">
+          <button class="btn btn-danger btn-lg">Delete</button>
+        </div>
+</form>
     </div>
 {% endblock %}

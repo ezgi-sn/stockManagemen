@@ -132,16 +132,20 @@ def products():
     return jsonify(result)
 
 
-@app.route('/product', methods = ['GET'])
-def product():
-    products_list = Category.query.all() #returns json
-    return render_template('products.html', products_list=products_list)
 
-@app.route('/product_details/<int:category_id>')
+@app.route('/product_details/<int:category_id>', methods=['GET', 'POST'])
 def product_details(category_id:int):
-    products_in_category = Product.query.filter_by(category_id=category_id)
-    return render_template('categories.html', products_in_category=products_in_category)
-
+    if request.method=="GET":
+        products_in_category = Product.query.filter_by(category_id=category_id)
+        return render_template('categories.html', products_in_category=products_in_category)
+    else:
+        print("post triggered")
+        form_keys=request.form.getlist("product_keys")
+        for form_key in form_keys:
+            print(int(form_key))
+            Product.query.filter_by(product_id=form_key).delete()
+            db.session.commit()
+        return redirect(url_for("product_details", category_id=category_id))
 
 
 @app.route('/increase/<int:product_id>', methods=['POST'])
@@ -166,6 +170,30 @@ def decrease(product_id):
         print(product.product_stock)
         return jsonify({'success': True, 'yeni_deger': product.product_stock})
     return jsonify({'success': False})
+
+
+@app.route('/create', methods=['GET', 'POST'])
+def create():
+    if request.method == "GET":
+        return render_template('create.html')
+    else:
+        product_category = request.form['product_category']
+        category_id = 1
+        if (product_category == 'Steel'):
+            category_id = 1
+        elif (product_category == 'Rubber'):
+            category_id = 2
+        elif (product_category == 'Plastics'):
+            category_id = 3
+        else:
+            category_id = 4
+        product_name = request.form['product_name']
+        product_stock = request.form['product_stock']
+        product_description = request.form['product_description']
+        product=Product(category_id=category_id, product_name = product_name, product_stock = product_stock, product_description=product_description)
+        db.session.add(product)
+        db.session.commit()
+        return redirect(url_for('index'))
 
 
 
