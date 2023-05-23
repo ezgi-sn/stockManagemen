@@ -11,11 +11,10 @@ app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'stock.db')
 
-
-
-db = SQLAlchemy(app) #orm
-ma = Marshmallow(app) #object serialization
+db = SQLAlchemy(app)  # orm
+ma = Marshmallow(app)  # object serialization
 migrate = Migrate(app, db)
+
 
 @app.route('/')
 def index():
@@ -23,14 +22,20 @@ def index():
     return render_template('index.html', categories_list=categories_list)
 
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
 
 @app.cli.command('db_create')
 def create():
     db.create_all()
 
+
 @app.cli.command('db_drop')
 def drop():
     db.drop_all()
+
 
 @app.cli.command('db_seed')
 def seed():
@@ -39,26 +44,24 @@ def seed():
                      e_mail='test@test.com',
                      password='P@ssw0rd')
 
-    steel = Category(category_name = 'steel')
-    rubber = Category(category_name = 'rubber')
-    plastics = Category(category_name = 'plastics')
-    aluminum = Category(category_name = 'aluminum')
+    steel = Category(category_name='steel')
+    rubber = Category(category_name='rubber')
+    plastics = Category(category_name='plastics')
+    aluminum = Category(category_name='aluminum')
 
+    carbon_steel = Product(category_id=1, product_name='carbon_steel', product_stock=10)
 
+    stainless_steel = Product(category_id=1, product_name='stainless_steel ', product_stock=20)
 
-    carbon_steel = Product(category_id=1, product_name = 'carbon_steel', product_stock = 10)
+    neoprene_rubber = Product(category_id=2, product_name='neoprene_rubber', product_stock=30)
 
-    stainless_steel = Product(category_id=1, product_name = 'stainless_steel ',product_stock = 20)
+    silicone_rubber = Product(category_id=2, product_name='silicone_rubber', product_stock=40)
 
-    neoprene_rubber = Product(category_id=2, product_name = 'neoprene_rubber', product_stock = 30)
+    polycarbonate = Product(category_id=3, product_name='polycarbonate', product_stock=50)
 
-    silicone_rubber = Product(category_id = 2, product_name = 'silicone_rubber', product_stock = 40)
+    polypropylene = Product(category_id=3, product_name='polypropylene', product_stock=60)
 
-    polycarbonate = Product(category_id =3, product_name = 'polycarbonate', product_stock = 50)
-
-    polypropylene = Product(category_id = 3, product_name='polypropylene', product_stock = 60)
-
-    aluminum_1100= Product(category_id=4, product_name='aluminum_1100', product_stock =70)
+    aluminum_1100 = Product(category_id=4, product_name='aluminum_1100', product_stock=70)
 
     db.session.add(steel)
     db.session.add(rubber)
@@ -80,12 +83,14 @@ def seed():
 
 @app.cli.command('db_update')
 def insert_def():
-    description_carbon_steel = "The term carbon steel may also be used in reference to steel which is not stainless steel; " \
-                               "in this use carbon steel may include alloy steels. High carbon steel has many different uses such as milling machines, " \
+    description_carbon_steel = "The term carbon steel may also be used in reference to steel which is not stainless " \
+                               "steel; " \
+                               "in this use carbon steel may include alloy steels. High carbon steel has many " \
+                               "different uses such as milling machines, " \
                                "cutting tools (such as chisels) and high strength wires. These applications require a much finer microstructure, which improves the toughness."
 
     product = Product.query.filter_by(product_id=1).first()
-    product.product_description=description_carbon_steel
+    product.product_description = description_carbon_steel
     db.session.commit()
 
     desc_stainless_steel = "Stainless steel is an alloy of iron that is resistant to rusting and corrosion. It contains at least 11% chromium and may contain elements such as carbon, " \
@@ -100,7 +105,7 @@ def insert_def():
                "braces (wrist, knee, etc.), electrical insulation, liquid and sheet-applied elastomeric membranes or flashings, and automotive fan belts"
 
     product = Product.query.filter_by(product_id=3).first()
-    product.product_description=neo_desc
+    product.product_description = neo_desc
     db.session.commit()
 
     poly_desc = "Polycarbonates (PC) are a group of thermoplastic polymers containing carbonate groups in their chemical structures. Polycarbonates used in engineering are strong, tough materials, " \
@@ -125,22 +130,22 @@ def insert_def():
     product.product_description = alu_desc
     db.session.commit()
 
-@app.route('/products', methods = ['GET'])
+
+@app.route('/products', methods=['GET'])
 def products():
-    products_list = Product.query.all() #returns json
-    result = products_schema.dump(products_list) #json.dump
+    products_list = Product.query.all()  # returns json
+    result = products_schema.dump(products_list)  # json.dump
     return jsonify(result)
 
 
-
 @app.route('/product_details/<int:category_id>', methods=['GET', 'POST'])
-def product_details(category_id:int):
-    if request.method=="GET":
+def product_details(category_id: int):
+    if request.method == "GET":
         products_in_category = Product.query.filter_by(category_id=category_id)
         return render_template('categories.html', products_in_category=products_in_category)
     else:
         print("post triggered")
-        form_keys=request.form.getlist("product_keys")
+        form_keys = request.form.getlist("product_keys")
         for form_key in form_keys:
             print(int(form_key))
             Product.query.filter_by(product_id=form_key).delete()
@@ -153,7 +158,7 @@ def increase(product_id):
     print('increase triggered')
     product = Product.query.filter_by(product_id=product_id).first()
     if product:
-        product.product_stock=product.product_stock+1
+        product.product_stock = product.product_stock + 1
         db.session.commit()
         print(product.product_stock)
         return jsonify({'success': True, 'yeni_deger': product.product_stock})
@@ -165,7 +170,7 @@ def decrease(product_id):
     print('increase triggered')
     product = Product.query.filter_by(product_id=product_id).first()
     if product:
-        product.product_stock=product.product_stock-1
+        product.product_stock = product.product_stock - 1
         db.session.commit()
         print(product.product_stock)
         return jsonify({'success': True, 'yeni_deger': product.product_stock})
@@ -190,15 +195,14 @@ def create():
         product_name = request.form['product_name']
         product_stock = request.form['product_stock']
         product_description = request.form['product_description']
-        product=Product(category_id=category_id, product_name = product_name, product_stock = product_stock, product_description=product_description)
+        product = Product(category_id=category_id, product_name=product_name, product_stock=product_stock,
+                          product_description=product_description)
         db.session.add(product)
         db.session.commit()
         return redirect(url_for('index'))
 
 
-
-
-#database models
+# database models
 class User(db.Model):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
@@ -210,9 +214,8 @@ class User(db.Model):
 
 class Category(db.Model):
     __tablename__ = 'categories'
-    category_id = Column(Integer, primary_key=True )
+    category_id = Column(Integer, primary_key=True)
     category_name = Column(String)
-
 
 
 class Product(db.Model):
@@ -239,6 +242,7 @@ class ProductSchema(ma.Schema):
     class Meta:
         fields = ('product_name', 'category_id', 'product_stock')
 
+
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
 
@@ -247,7 +251,6 @@ categories_schema = CategorySchema(many=True)
 
 product_schema = ProductSchema()
 products_schema = ProductSchema(many=True)
-
 
 if __name__ == '__main__':
     app.run()
